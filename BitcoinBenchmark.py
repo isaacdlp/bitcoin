@@ -1,6 +1,8 @@
 import backtrader as bt
 import datetime as dt
 
+leverUp = True
+
 
 ''' Buy & Hold Bitcoin '''
 
@@ -57,26 +59,29 @@ class BitcoinStrategy(bt.Strategy):
 
 if __name__ == "__main__":
 
+    leverage = 2 if leverUp else 1
+    percents = 195 if leverUp else 95
+
     cerebro = bt.Cerebro()
 
     data = BitcoinFeed(
         name="BTC",
         dataname="krakenUSD_15m.csv",
         timeframe=bt.TimeFrame.Minutes,
-        #fromdate=dt.datetime(2017, 1, 1),
-        #todate=dt.datetime(2018, 1, 1),
+        fromdate=dt.datetime(2017, 1, 1),
+        todate=dt.datetime(2018, 1, 1),
         nullvalue=0.0
     )
 
     cerebro.adddata(data)
 
     cerebro.addstrategy(BitcoinStrategy)
-    cerebro.addsizer(bt.sizers.PercentSizer, percents = 195) # taking leverage
+    cerebro.addsizer(bt.sizers.PercentSizer, percents=percents) # taking leverage
 
     broker = cerebro.getbroker()
     broker.setcash(1000)
 
-    broker.setcommission(commission=0.003, leverage=2, name="BTC") # allowing leverage
+    broker.setcommission(commission=0.003, leverage=leverage, name="BTC") # allowing leverage
     broker.set_filler(bt.broker.filler.FixedBarPerc(perc=25))
 
 
